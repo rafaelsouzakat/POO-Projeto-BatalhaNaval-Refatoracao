@@ -38,8 +38,14 @@ public class Tabuleiro{
             }
         }
         else{
-            // Lógica similar para a posição vertical
-            // Vou implementar depois.
+            if(y + len > size){
+                return false;
+            }
+            for(int i = 0; i < len; i++){
+                if(grid[y + i][x] != '.'){
+                    return false;
+                }
+            }
         }
         return true; // Se passou por todas as checagens, é possível posicionar o navio
     }
