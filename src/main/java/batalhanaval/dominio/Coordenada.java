@@ -1,9 +1,11 @@
 package batalhanaval.dominio;
 
 public class Coordenada {
+    // Atributos da classe Coordenada
     private int x;
     private int y;
 
+    // Construtor da classe Coordenada
     public Coordenada(int x, int y) {
         if (x < 0 || y < 0) {
             throw new IllegalArgumentException("Coordenada não pode ser negativa.");
@@ -13,6 +15,7 @@ public class Coordenada {
         this.y = y;
     }
 
+    // O antigo parseCoord(String s, int N) vira um método de fábrica aqui:
     public static Coordenada parse(String s, int boardSize) {
         if (s == null) {
             throw new IllegalArgumentException("Coordenada não pode ser nula.");
@@ -40,6 +43,7 @@ public class Coordenada {
         return new Coordenada(x, y);
     }
 
+    // Getters para os atributos x e y
     public int getX() {
         return x;
     }
