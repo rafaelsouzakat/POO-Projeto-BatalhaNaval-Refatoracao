@@ -1,41 +1,50 @@
-public class Coordenada{
-    // Atributos da classe Coordenada
+package batalhanaval.dominio;
+
+public class Coordenada {
     private int x;
     private int y;
 
-    // Construtor da classe Coordenada
     public Coordenada(int x, int y) {
+        if (x < 0 || y < 0) {
+            throw new IllegalArgumentException("Coordenada não pode ser negativa.");
+        }
+
         this.x = x;
         this.y = y;
     }
 
-    // O antigo parseCoord(String s, int N) vira um método de fábrica aqui:
-    // Acho que deveria trocar por uma exceção depois? (mas por enquanto, para evitar complicações, vou deixar retornando null)
-    public static Coordenada parse(String s, int boardSize){
+    public static Coordenada parse(String s, int boardSize) {
         if (s == null) {
-            return null; // Acho que deveria trocar por uma exceção depois?
+            throw new IllegalArgumentException("Coordenada não pode ser nula.");
         }
 
         String t = s.trim().toUpperCase();
-        if(t.length() < 2 || t.length() > 3) {
-            return null; // Acho que deveria trocar por uma exceção depois?
+
+        if (t.length() < 2 || t.length() > 3) {
+            throw new IllegalArgumentException("Formato de coordenada inválido.");
         }
 
         int x = t.charAt(0) - 'A';
-        int y = Integer.parseInt(t.substring(1)) - 1;
 
-        if(x < 0 || x >= boardSize || y < 0 || y >= boardSize){
-            return null; // Acho que deveria trocar por uma exceção depois?
+        int y;
+        try {
+            y = Integer.parseInt(t.substring(1)) - 1;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Número da coordenada inválido.");
+        }
+
+        if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
+            throw new IllegalArgumentException("Coordenada fora dos limites do tabuleiro.");
         }
 
         return new Coordenada(x, y);
     }
 
-    // Getters para os atributos x e y
-    public int getX(){
+    public int getX() {
         return x;
     }
-    public int getY(){
+
+    public int getY() {
         return y;
     }
 }
