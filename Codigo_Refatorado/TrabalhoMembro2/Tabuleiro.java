@@ -14,6 +14,11 @@ public class Tabuleiro{
         this.naviosPosicionados = new Navio[size][size];
 
         // Inicializa o grid com água (representada por '.')
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                this.grid[i][j] = '.';
+            }
+        }
     }
 
     // Substitui o antigo canPlace(...)
