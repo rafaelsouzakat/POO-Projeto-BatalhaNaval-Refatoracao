@@ -38,4 +38,25 @@ public class Tabuleiro{
         }
         return true; // Se passou por todas as checagens, é possível posicionar o navio
     }
+
+    // Substitui o antigo placeShip(...)
+    public void posicionarNavio(Coordenada c, Navio navio, boolean horizontal){
+        if(!podePosicionar(c, navio, horizontal)){
+            throw new IllegalArgumentException("Posição inválida para o navio.");
+        }
+
+        int x = c.getX();
+        int y = c.getY();
+
+        for(int i = 0; i < navio.getTamanho(); i++){
+            if(horizontal){
+                grid[y][x + i] = 'S'; // Marca a posição do navio no grid
+                naviosPosicionados[y][x + i] = navio; // Associa o navio àquela célula
+            }
+            else{
+                grid[y + i][x] = 'S'; // Marca a posição do navio no grid
+                naviosPosicionados[y + i][x] = navio;
+            }
+        }
+    }
 }
