@@ -1,6 +1,6 @@
 // O tabuleiro terá como atributo a matriz e recebe os objetos Coordenada e Navio.
 // O tabuleiro "TEM" navios e "TEM" coordenadas, relação de composição.
-
+package batalhanaval.dominio;
 public class Tabuleiro{
     // Atributos da classe Tabuleiro
     private char[][] grid;

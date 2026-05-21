@@ -1,5 +1,5 @@
 // Em vez de matrizes de inteiros shipId[][] e checagens soltas, o navio guarda seu próprio estado de vida.
-
+package batalhanaval.dominio;
 public class Navio{
     // Atributos da classe Navio
     private int id;

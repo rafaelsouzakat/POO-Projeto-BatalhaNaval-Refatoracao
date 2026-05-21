@@ -1,4 +1,4 @@
-package batalhanaval.dominio;
+package main.test.java.batalhanaval;
 
 import org.junit.jupiter.api.Test;
 

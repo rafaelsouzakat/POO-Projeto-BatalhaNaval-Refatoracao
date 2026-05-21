@@ -1,5 +1,5 @@
 // Classe enum para tipar as respostas dos disparos (água, acerto, afundou)
-
+package batalhanaval.dominio;
 public enum ResultadoTiro{
     // valores do enum
     AGUA("Água", false),
