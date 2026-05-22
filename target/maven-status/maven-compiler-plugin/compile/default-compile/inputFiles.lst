@@ -1,0 +1,10 @@
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/config/GameConfig.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/config/ValidadorDeFrota.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/Coordenada.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/CpuPlayer.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/HumanPlayer.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/Jogador.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/Navio.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/ResultadoTiro.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/dominio/Tabuleiro.java
+/workspaces/POO-Projeto-BatalhaNaval-Refatoracao/src/main/java/batalhanaval/ui/TerminalUI.java

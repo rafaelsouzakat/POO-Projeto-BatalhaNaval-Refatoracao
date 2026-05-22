@@ -1,0 +1,11 @@
+batalhanaval/dominio/Coordenada.class
+batalhanaval/config/GameConfig.class
+batalhanaval/dominio/CpuPlayer.class
+TerminalUI.class
+batalhanaval/dominio/ResultadoTiro.class
+batalhanaval/dominio/HumanPlayer.class
+batalhanaval/dominio/Jogador.class
+batalhanaval/config/ValidadorDeFrota.class
+batalhanaval/config/ValidadorDeFrota$ResultadoValidacao.class
+batalhanaval/dominio/Tabuleiro.class
+batalhanaval/dominio/Navio.class
