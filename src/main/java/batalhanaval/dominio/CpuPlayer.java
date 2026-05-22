@@ -39,7 +39,7 @@ public class CpuPlayer extends Jogador{
     }
 
     // Metodo auxiliar isolando a logica aleatoria
-    private Coordenada gerarTiroAleantorio(int limite){
+    private Coordenada gerarTiroAleatorio(int limite){
         int x = random.nextInt(limite);
         int y = random.nextInt(limite);
         return new Coordenada(x, y);
