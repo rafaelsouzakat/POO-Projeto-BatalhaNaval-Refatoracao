@@ -70,4 +70,9 @@ public class Tabuleiro{
             }
         }
     }
+
+    // Getter para o tamanho do tabuleiro
+    public int getSize(){
+        return this.size;
+    }
 }
