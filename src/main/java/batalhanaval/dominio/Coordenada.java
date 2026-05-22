@@ -27,7 +27,8 @@ public class Coordenada {
             throw new IllegalArgumentException("Formato de coordenada inválido.");
         }
 
-        int x = t.charAt(0) - 'A';
+        char letra = t.charAt(0);
+        int x = letra - 'A';
 
         int y;
         try {
