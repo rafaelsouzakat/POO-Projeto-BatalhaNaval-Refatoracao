@@ -75,4 +75,60 @@ public class Tabuleiro{
     public int getSize(){
         return this.size;
     }
+
+    public char[][] getGrid(){
+        return this.grid;
+    }
+
+    public char[][] getGridDeTiros(){
+        char[][] tiros = new char[size][size];
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                tiros[i][j] = (grid[i][j] == 'S') ? '.' : grid[i][j]; // Esconde os navios
+            }
+        }
+        return tiros;
+    }
+
+    public int getNaviosRestantes(){
+        int count = 0;
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if(naviosPosicionados[i][j] != null && !naviosPosicionados[i][j].isAfundado()){
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public ResultadoTiro receberTiro(Coordenada c){
+        int x = c.getX();
+        int y = c.getY();
+
+        if(grid[y][x] == 'S'){
+            Navio navio = naviosPosicionados[y][x];
+            navio.registrarAcerto();
+            grid[y][x] = 'X'; // Marca o acerto no grid
+            return navio.isAfundado() ? ResultadoTiro.AFUNDOU : ResultadoTiro.ACERTO;
+        }
+        else if(grid[y][x] == '.' || grid[y][x] == 'O'){
+            grid[y][x] = 'O'; // Marca o erro no grid
+            return ResultadoTiro.AGUA;
+        }
+        else{
+            return ResultadoTiro.ACERTO; // Já foi atingido antes
+        }
+    }
+
+    public boolean isFrotaTotalmenteAfundada(){
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
+                if(naviosPosicionados[i][j] != null && !naviosPosicionados[i][j].isAfundado()){
+                    return false; // Encontrou um navio que ainda não foi afundado
+                }
+            }
+        }
+        return true; // Todos os navios foram afundados
+    }
 }
