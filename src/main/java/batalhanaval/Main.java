@@ -3,6 +3,7 @@ package batalhanaval;
 import batalhanaval.config.GameConfig;
 import batalhanaval.config.ValidadorDeFrota;
 import batalhanaval.ui.TerminalUI;
+import batalhanaval.dominio.Jogo;
 import java.io.IOException;
 
 public class Main {
@@ -35,9 +36,9 @@ public class Main {
             if (opcao == 1 || opcao == 2) {
                 ui.exibirMensagem("\nIniciando o motor do jogo...");
                 
-                // TODO: Aqui é onde você "pluga" a sua classe Jogo (Membro 2)
-                // Jogo jogo = new Jogo(config, ui);
-                // jogo.iniciarPartida();
+                // Aqui é onde o jogo inicia de fato.
+                Jogo jogo = new Jogo(config, ui);
+                jogo.iniciarPartida();
             }
 
         } catch (IOException e) {
