@@ -42,7 +42,7 @@ public class GameConfig {
     }
 
     public String getProjectVersion() {
-        return props.getProperty("project.version", "2.0.0");
+        return props.getProperty("project.version", "2.0.1");
     }
 
 
