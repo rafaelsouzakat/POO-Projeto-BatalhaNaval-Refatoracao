@@ -8,7 +8,7 @@ class TabuleiroTest {
     @Test
     void deveInicializarTabuleiroComTamanhoCorreto(){
         Tabuleiro tab = new Tabuleiro(10);
-        assertEquals(10, tab.getTamanho(), "O tabuleiro deve ser inicializado com o tamanho especificado.");
+        assertEquals(10, tab.getSize(), "O tabuleiro deve ser inicializado com o tamanho especificado.");
     }
 
     @Test
