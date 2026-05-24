@@ -153,4 +153,97 @@ public class TerminalUI {
         String resposta = lerLetraSegura(mensagem + " (S/N): ", "S", "N");
         return resposta.equals("S");
     }
+
+    // Estrutura para o Histórico
+    public static class ResumoPartida {
+        public final int id;
+        public final String data;
+        public final String vencedor;
+
+        public ResumoPartida(int id, String data, String vencedor) {
+            this.id = id;
+            this.data = data;
+            this.vencedor = vencedor;
+        }
+    }
+
+    // Estrutura para cada passo do Replay
+    public static class FrameReplay {
+        public final char[][] tabuleiroJogador;
+        public final char[][] tabuleiroTiros;
+        public final String descricaoAcao; // Ex: "Turno 4: CPU atirou em B5 (Água)"
+
+        public FrameReplay(char[][] tabuleiroJogador, char[][] tabuleiroTiros, String descricaoAcao) {
+            this.tabuleiroJogador = tabuleiroJogador;
+            this.tabuleiroTiros = tabuleiroTiros;
+            this.descricaoAcao = descricaoAcao;
+        }
+    }
+
+    // --- HISTÓRICO E REPLAY ---
+
+    /*
+     * Lista as partidas salvas e pede ao usuário qual ID ele quer assistir.
+     * Recebe os dados já formatados do motor/banco de dados.
+     */
+    public int exibirHistoricoPartidas(java.util.List<ResumoPartida> historico) {
+        System.out.println("\n=== HISTÓRICO DE PARTIDAS ===");
+        
+        if (historico == null || historico.isEmpty()) {
+            System.out.println("Nenhuma partida encontrada no banco de dados.");
+            return 0; // 0 pode indicar retorno ao menu principal no seu motor
+        }
+
+        System.out.printf("%-5s | %-20s | %-15s%n", "ID", "DATA", "VENCEDOR");
+        System.out.println("--------------------------------------------------");
+        
+        for (ResumoPartida partida : historico) {
+            System.out.printf("%-5d | %-20s | %-15s%n", partida.id, partida.data, partida.vencedor);
+        }
+        
+        System.out.println("--------------------------------------------------");
+        System.out.print("Digite o ID da partida que deseja assistir (ou 0 para voltar): ");
+        
+        return lerInteiroSeguro(); // Repassa o ID escolhido para o backend processar
+    }
+
+    //Executa o replay passo a passo baseado na configuração de delay.
+    public void reproduzirReplay(java.util.List<FrameReplay> jogadas, int delayMs) {
+        System.out.println("\n=== INICIANDO REPLAY ===");
+        
+        if (jogadas == null || jogadas.isEmpty()) {
+            System.out.println("Nenhuma jogada encontrada para este replay.");
+            return;
+        }
+
+        for (int i = 0; i < jogadas.size(); i++) {
+            FrameReplay frame = jogadas.get(i);
+            
+            System.out.println("\nPasso " + (i + 1) + " de " + jogadas.size());
+            if (frame.descricaoAcao != null && !frame.descricaoAcao.isEmpty()) {
+                System.out.println(">>> " + frame.descricaoAcao);
+            }
+            
+            exibirTabuleirosLadoALado(frame.tabuleiroJogador, frame.tabuleiroTiros);
+
+            // Controle de Pausa do Replay
+            if (delayMs > 0) {
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("Replay interrompido pelo sistema.");
+                    break;
+                }
+            } else {
+                System.out.print("\nPressione [ENTER] para a próxima jogada...");
+                scanner.nextLine();
+            }
+        }
+        
+        System.out.println("\n=== FIM DO REPLAY ===");
+        System.out.print("Pressione [ENTER] para voltar ao menu principal...");
+        scanner.nextLine();
+    }
 }
+
