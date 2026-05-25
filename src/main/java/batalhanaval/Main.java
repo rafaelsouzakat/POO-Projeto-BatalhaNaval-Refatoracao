@@ -4,6 +4,10 @@ import batalhanaval.config.GameConfig;
 import batalhanaval.config.ValidadorDeFrota;
 import batalhanaval.ui.TerminalUI;
 import batalhanaval.dominio.Jogo;
+import batalhanaval.persistencia.PartidaDAO;
+import batalhanaval.persistencia.PartidaDTO;
+import batalhanaval.persistencia.JogadaDTO;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
