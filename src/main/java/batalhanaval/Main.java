@@ -5,6 +5,9 @@ import batalhanaval.config.ValidadorDeFrota;
 import batalhanaval.ui.TerminalUI;
 import batalhanaval.dominio.Jogo;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -40,6 +43,43 @@ public class Main {
                 Jogo jogo = new Jogo(config, ui);
                 jogo.iniciarPartida();
             }
+
+            if (opcao == 3) {
+                // 1. Instancia o DAO do Membro 5 usando o caminho do game.properties
+                PartidaDAO partidaDAO = new PartidaDAO(config.getDbSqliteFile());
+                
+                try {
+                    // 2. Busca a lista bruta do banco de dados
+                    // (Assumindo que o Membro 5 criou um método listarPartidas e um DTO próprio)
+                    List<PartidaDTO> partidasBanco = partidaDAO.listarPartidas();
+                    
+                    // 3. Converte os dados do Banco para os DTOs visuais do Membro 4
+                    List<TerminalUI.ResumoPartida> historicoUI = new ArrayList<>();
+                    for (PartidaDTO p : partidasBanco) {
+                        historicoUI.add(new TerminalUI.ResumoPartida(p.getId(), p.getInicio(), p.getVencedor()));
+                    }
+                    
+                    // 4. Chama a UI para imprimir a tabela e pegar a resposta do usuário
+                    int idEscolhido = ui.exibirHistoricoPartidas(historicoUI);
+                    
+                    // 5. Se o usuário escolheu uma partida válida para assistir
+                    if (idEscolhido > 0) {
+                        // Busca todas as jogadas daquela partida no banco
+                        List<JogadaDTO> jogadasBanco = partidaDAO.buscarJogadasPorPartida(idEscolhido);
+                        
+                        // Constrói os quadros (frames) do Replay
+                        List<TerminalUI.FrameReplay> frames = construirFramesDoReplay(jogadasBanco, config);
+                        
+                        // Manda dar o play na tela! (usando o delay configurado no properties)
+                        ui.reproduzirReplay(frames, config.getReplayDelayMs());
+                    }
+                    
+                } catch (SQLException e) {
+                    ui.exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
+                }
+                
+                continue; // Volta para o início do Menu Principal
+            }           
 
         } catch (IOException e) {
             // Captura caso o arquivo game.properties não seja encontrado
