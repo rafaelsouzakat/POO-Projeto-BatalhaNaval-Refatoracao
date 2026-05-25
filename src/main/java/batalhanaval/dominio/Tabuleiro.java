@@ -71,6 +71,10 @@ public class Tabuleiro{
         }
     }
 
+    public boolean adicionarNavio(Coordenada c, int tamanho, String direcao){
+        //TODO
+    }
+
     // Getter para o tamanho do tabuleiro
     public int getSize(){
         return this.size;

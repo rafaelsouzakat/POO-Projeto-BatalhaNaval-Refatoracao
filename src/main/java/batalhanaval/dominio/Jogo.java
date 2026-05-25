@@ -1,19 +1,43 @@
 package batalhanaval.dominio;
 
+import java.util.List;
+
 import batalhanaval.config.GameConfig;
+import batalhanaval.persistencia.PartidaDAO;
+import batalhanaval.persistencia.JogadaDAO;
+import batalhanaval.persistencia.JogadaDTO;
 import batalhanaval.ui.TerminalUI;
+
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Jogo {
     private GameConfig config;
     private TerminalUI ui;
+
+    // DAOs para salvar no banco
+    private PartidaDAO partidaDAO; // Para salvar o histórico de partidas
+    private JogadaDAO jogadaDAO; // Para salvar o histórico de jogadas
+
     private Jogador humano;
     private Jogador cpu;
     private boolean turnoDoHumano; // Controle simples de quem é a vez
 
-    public Jogo(GameConfig config, TerminalUI ui) {
+    // Lista para guardar o "filme" da partida
+    private List<JogadaDTO> historicoJogadas;
+
+    public Jogo(GameConfig config, TerminalUI ui, PartidaDAO partidaDAO, JogadaDAO jogadaDAO) {
         this.config = config;
         this.ui = ui;
+        this.partidaDAO = partidaDAO;
+        this.jogadaDAO = jogadaDAO;
         this.turnoDoHumano = true; // O jogador humano começa
+
+        // Inicia a lista vazia
+        this.historicoJogadas = new ArrayList<>();
         
         // 1. Instancia os tabuleiros lendo o tamanho do arquivo properties
         int tamanho = config.getBoardSize();
@@ -25,80 +49,114 @@ public class Jogo {
         this.cpu = new CpuPlayer("CPU", tabCpu, config.getCpuStrategy());
     }
 
-    public void iniciarPartida() {
-        ui.exibirMensagem("\n[SISTEMA] Posicionando frotas...");
-        // TODO: Aqui vocês chamarão a lógica de posicionamento (manual/automático)
-        // usando o ValidadorDeFrota do Membro 3.
-        
-        boolean jogoAtivo = true;
-
-        // O GRANDE LAÇO DO JOGO
-        while (jogoAtivo) {
-            Jogador atacante = turnoDoHumano ? humano : cpu;
-            Jogador defensor = turnoDoHumano ? cpu : humano;
-
-            // Variável para armazenar onde o tiro vai acertar
-            Coordenada coordAlvo = null;
-
-            // --- LÓGICA DO TURNO DO HUMANO ---
-            if (turnoDoHumano) {
-                // Pede para o Membro 4 desenhar a tela
-                // (Nota: assumindo que o seu Tabuleiro possui os métodos getGrid() e getGridDeTiros())
-                ui.exibirTabuleirosLadoALado(atacante.getTabuleiro().getGrid(), atacante.getTabuleiro().getGridDeTiros());
+public void iniciarPartida() {
+    ui.exibirMensagem("\n[SISTEMA] Posicionando frotas...");
+    
+    // 1. LÓGICA DE POSICIONAMENTO
+    int[] tamanhosNavios = config.getFleetSizes();
+    String[] nomesNavios = config.getFleetNames();
+    
+    // Posicionamento da CPU (Automático)
+    cpu.posicionarFrota(tamanhosNavios);
+    
+    // Posicionamento do Humano (Pergunta se quer automático ou manual)
+    boolean querManual = ui.lerConfirmacao("Deseja posicionar seus navios manualmente?");
+    if (!querManual) {
+        humano.posicionarFrota(tamanhosNavios);
+        ui.exibirMensagem("Sua frota foi posicionada automaticamente!");
+    } else {
+        // Posicionamento Manual: Laço pedindo coordenada para cada navio
+        for (int i = 0; i < tamanhosNavios.length; i++) {
+            boolean posicaoValida = false;
+            while (!posicaoValida) {
+                ui.exibirMeuTabuleiro(humano.getTabuleiro().getGrid());
+                ui.exibirMensagem("Posicionando: " + nomesNavios[i] + " (Tamanho: " + tamanhosNavios[i] + ")");
                 
-                // Exibe o menu informando quantos navios restam (assumindo que você criou getNaviosRestantes())
-                int opcao = ui.exibirMenuTurno(
-                    atacante.getTabuleiro().getNaviosRestantes(), 
-                    defensor.getTabuleiro().getNaviosRestantes()
-                );
+                String coord = ui.lerCoordenada("Digite a coordenada inicial");
+                String direcao = ui.lerDirecao(); // H ou V
                 
-                if (opcao == 2) {
-                    ui.exibirLegenda();
-                    continue; // Reinicia o laço sem passar o turno
-                } else if (opcao == 3) {
-                    ui.exibirMeuTabuleiro(atacante.getTabuleiro().getGrid());
-                    continue; // Reinicia o laço sem passar o turno
-                } else if (opcao == 1) {
-                    // Opção de atirar: A UI lê a string e nós tentamos converter
-                    try {
-                        String entrada = ui.lerCoordenada("Digite a coordenada para atirar");
-                        coordAlvo = Coordenada.parse(entrada, config.getBoardSize());
-                    } catch (IllegalArgumentException e) {
-                        ui.exibirMensagem("Coordenada inválida: " + e.getMessage());
-                        continue; // Pede de novo sem passar o turno
+                // Tenta colocar no tabuleiro. O método adicionarNavio deve retornar true se couber e false se der erro de colisão/limite.
+                try {
+                    Coordenada c = Coordenada.parse(coord, config.getBoardSize());
+                    posicaoValida = humano.getTabuleiro().adicionarNavio(c, tamanhosNavios[i], direcao);
+                    
+                    if (!posicaoValida) {
+                        ui.exibirMensagem("[ERRO] Posição inválida! O navio colide com outro ou sai do tabuleiro. Tente novamente.");
                     }
+                } catch (IllegalArgumentException e) {
+                    ui.exibirMensagem("[ERRO] Coordenada fora do formato esperado.");
                 }
-            }
-
-            // --- PROCESSAMENTO DO TIRO (Serve tanto para Humano quanto CPU) ---
-            
-            // O jogador prepara a jogada (Humano retorna a coordAlvo, CPU ignora e sorteia a dela)
-            Coordenada jogada = atacante.prepararJogada(coordAlvo);
-            
-            // Aplica o tiro no tabuleiro inimigo
-            // (Nota: você precisará criar o método receberTiro(Coordenada) no Tabuleiro)
-            ResultadoTiro resultado = defensor.getTabuleiro().receberTiro(jogada);
-
-            // Exibe o que aconteceu na UI
-            ui.exibirMensagem("\n>>> " + atacante.getNome() + " atirou em (" + jogada.getX() + "," + jogada.getY() + ")");
-            ui.exibirResultadoTiro(resultado.getDescricao());
-
-            // --- VERIFICAR CONDIÇÃO DE VITÓRIA ---
-            if (defensor.getTabuleiro().isFrotaTotalmenteAfundada()) {
-                ui.exibirMensagem("\n🏆 FIM DE JOGO! A frota de " + defensor.getNome() + " foi destruída!");
-                ui.exibirMensagem("🏆 VENCEDOR: " + atacante.getNome() + " 🏆");
-                jogoAtivo = false;
-                break;
-            }
-
-            // --- CONTROLE DE TROCA DE TURNO ---
-            // Verifica a regra do game.properties se ganha tiro extra ao acertar [3, 4]
-            if (resultado.isAcerto() && config.isHitGrantsExtraShot()) {
-                ui.exibirMensagem(atacante.getNome() + " acertou e ganhou um tiro extra!");
-            } else {
-                // Passa a vez para o outro jogador
-                turnoDoHumano = !turnoDoHumano;
             }
         }
     }
+
+    boolean jogoAtivo = true;
+    int turnoContador = 1;
+    String dataInicio = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+    // O GRANDE LAÇO DO JOGO
+    while (jogoAtivo) {
+        Jogador atacante = turnoDoHumano ? humano : cpu;
+        Jogador defensor = turnoDoHumano ? cpu : humano;
+        
+        Coordenada coordAlvo = null;
+
+        // ... (AQUI FICA O BLOCO DO TURNO DO HUMANO QUE JÁ FIZEMOS, ONDE ELE DIGITA O TIRO) ...
+        
+        // 2. O EXEMPLO GENÉRICO DE TIRO SUBSTITUÍDO PELO CÓDIGO REAL:
+        // O atacante decide onde atirar (Humano usa a coordenada digitada, CPU sorteia a dela)
+        Coordenada jogada = atacante.prepararJogada(coordAlvo);
+        
+        // Aplica o tiro no tabuleiro inimigo e recebe se foi água, acerto ou afundou
+        ResultadoTiro resultado = defensor.getTabuleiro().receberTiro(jogada);
+
+        // Exibe a mensagem do que aconteceu (água, acerto, afundou)
+        ui.exibirMensagem("\n>>> " + atacante.getNome() + " atirou em " + jogada.toString());
+        ui.exibirResultadoTiro(resultado.getDescricao());
+
+        // 3. SALVANDO NO HISTÓRICO DO REPLAY:
+        historicoJogadas.add(new JogadaDTO(turnoContador, atacante.getNome(), jogada.toString(), resultado.getDescricao()));
+
+        // VERIFICA SE ALGUÉM VENCEU
+        if (defensor.getTabuleiro().isFrotaTotalmenteAfundada()) {
+            ui.exibirMensagem("\n🏆 FIM DE JOGO! A frota de " + defensor.getNome() + " foi destruída!");
+            ui.exibirMensagem("🏆 VENCEDOR: " + atacante.getNome() + " 🏆");
+            
+            salvarDadosNoBanco(dataInicio, atacante.getNome());
+            
+            jogoAtivo = false;
+            break;
+        }
+
+        turnoContador++;
+        turnoDoHumano = !turnoDoHumano;
+    }
+}
+
+    // Método auxiliar privado para manter o iniciarPartida() limpo
+    private void salvarDadosNoBanco(String dataInicio, String vencedor) {
+        String dataFim = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String seed = config.getGameSeed(); // Puxa a seed do properties
+
+        try {
+            // Salva a Partida e pega o ID que o SQLite gerou
+            long idPartida = partidaDAO.salvarPartida(dataInicio, dataFim, vencedor, seed);
+            
+            // Se salvou a partida com sucesso, salva todas as jogadas amarradas a esse ID
+            if (idPartida > 0) {
+                for (JogadaDTO jogada : historicoJogadas) {
+                    jogadaDAO.salvarJogada(
+                        idPartida, 
+                        jogada.getTurno(), 
+                        jogada.getJogador(), 
+                        jogada.getCoordenada(), 
+                        jogada.getResultado()
+                    );
+                }
+                ui.exibirMensagem("[SISTEMA] Partida salva com sucesso no Histórico!");
+            }
+        } catch (SQLException e) {
+            ui.exibirMensagem("[ERRO] Falha ao salvar partida no banco de dados: " + e.getMessage());
+        }
+    }    
 }
