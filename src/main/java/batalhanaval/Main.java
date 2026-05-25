@@ -4,12 +4,6 @@ import batalhanaval.config.GameConfig;
 import batalhanaval.config.ValidadorDeFrota;
 import batalhanaval.ui.TerminalUI;
 import batalhanaval.dominio.Jogo;
-import batalhanaval.persistencia.PartidaDAO;
-import batalhanaval.persistencia.PartidaDTO;
-import batalhanaval.persistencia.ConexaoSQLite;
-import batalhanaval.persistencia.JogadaDAO;
-import batalhanaval.persistencia.JogadaDTO;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,7 +16,7 @@ public class Main {
 
         try {
             // 1. O Membro 3 carrega o arquivo de configuração
-            GameConfig config = GameConfig.carregar("game.properties");         
+            GameConfig config = GameConfig.carregar("game.properties");
 
             // 2. O Membro 3 valida se a frota e as regras do professor estão corretas
             ValidadorDeFrota.ResultadoValidacao validacao = ValidadorDeFrota.validar(config);
