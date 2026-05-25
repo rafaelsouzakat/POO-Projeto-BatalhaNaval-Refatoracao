@@ -71,8 +71,46 @@ public class Tabuleiro{
         }
     }
 
-    public boolean adicionarNavio(Coordenada c, int tamanho, String direcao){
-        //TODO
+    /**
+     * Tenta adicionar um navio no tabuleiro.
+     * Retorna true se foi possível, e false se a posição for inválida (saiu do mapa ou colidiu).
+     */
+    public boolean adicionarNavio(Coordenada c, int tamanho, String direcao) {
+        int x = c.getX();
+        int y = c.getY();
+        int boardSize = grid.length; // Assume que 'grid' é a sua matriz char[][]
+
+        // 1. Validação de Limites: Verifica se o navio sai para fora do tabuleiro
+        if (direcao.equals("H")) {
+            if (x + tamanho > boardSize) return false;
+        } else if (direcao.equals("V")) {
+            if (y + tamanho > boardSize) return false;
+        } else {
+            return false; // Direção inválida (não é H nem V)
+        }
+
+        // 2. Validação de Colisão: Verifica se já tem algum navio ('S') no caminho
+        for (int i = 0; i < tamanho; i++) {
+            int checkX = direcao.equals("H") ? x + i : x;
+            int checkY = direcao.equals("V") ? y + i : y;
+
+            if (grid[checkY][checkX] != '.') {
+                return false; // Colidiu com outro navio!
+            }
+        }
+
+        // 3. Posicionamento: Se passou nos testes, grava o navio no grid
+        for (int i = 0; i < tamanho; i++) {
+            int placeX = direcao.equals("H") ? x + i : x;
+            int placeY = direcao.equals("V") ? y + i : y;
+
+            grid[placeY][placeX] = 'S'; // 'S' representa a parte do navio
+        }
+
+        // Caso você tenha um contador de navios vivos no tabuleiro, incremente-o aqui:
+        // this.naviosRestantes++;
+
+        return true;
     }
 
     // Getter para o tamanho do tabuleiro
