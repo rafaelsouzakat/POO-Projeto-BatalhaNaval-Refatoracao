@@ -7,6 +7,8 @@ import batalhanaval.dominio.Jogo;
 import batalhanaval.persistencia.PartidaDAO;
 import batalhanaval.persistencia.PartidaDTO;
 import batalhanaval.persistencia.JogadaDTO;
+import batalhanaval.persistencia.JogadaDAO;
+import batalhanaval.persistencia.ConexaoSQLite;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,57 +34,29 @@ public class Main {
                 return;
             }
 
-            // 4. Tudo certo! Exibe o Menu Principal do Membro 4
-            int opcao = ui.exibirMenuPrincipal();
+            // 4. Instancia os DAOs para persistência
+            ConexaoSQLite conexao = new ConexaoSQLite(config.getDbSqliteFile());
+            PartidaDAO partidaDAO = new PartidaDAO(conexao);
+            JogadaDAO jogadaDAO = new JogadaDAO(conexao);
 
-            if (opcao == 0) {
-                ui.exibirMensagem("Encerrando Batalha Naval. Até logo!");
-                return;
-            }
+            // 5. Loop do Menu Principal
+            boolean continuarNoMenu = true;
+            while (continuarNoMenu) {
+                int opcao = ui.exibirMenuPrincipal();
 
-            if (opcao == 1 || opcao == 2) {
-                ui.exibirMensagem("\nIniciando o motor do jogo...");
-                
-                // Aqui é onde o jogo inicia de fato.
-                Jogo jogo = new Jogo(config, ui);
-                jogo.iniciarPartida();
-            }
-
-            if (opcao == 3) {
-                // 1. Instancia o DAO do Membro 5 usando o caminho do game.properties
-                PartidaDAO partidaDAO = new PartidaDAO(config.getDbSqliteFile());
-                
-                try {
-                    // 2. Busca a lista bruta do banco de dados
-                    // (Assumindo que o Membro 5 criou um método listarPartidas e um DTO próprio)
-                    List<PartidaDTO> partidasBanco = partidaDAO.listarPartidas();
+                if (opcao == 0) {
+                    ui.exibirMensagem("Encerrando Batalha Naval. Até logo!");
+                    continuarNoMenu = false;
+                } else if (opcao == 1 || opcao == 2) {
+                    ui.exibirMensagem("\nIniciando o motor do jogo...");
                     
-                    // 3. Converte os dados do Banco para os DTOs visuais do Membro 4
-                    List<TerminalUI.ResumoPartida> historicoUI = new ArrayList<>();
-                    for (PartidaDTO p : partidasBanco) {
-                        historicoUI.add(new TerminalUI.ResumoPartida(p.getId(), p.getInicio(), p.getVencedor()));
-                    }
-                    
-                    // 4. Chama a UI para imprimir a tabela e pegar a resposta do usuário
-                    int idEscolhido = ui.exibirHistoricoPartidas(historicoUI);
-                    
-                    // 5. Se o usuário escolheu uma partida válida para assistir
-                    if (idEscolhido > 0) {
-                        // Busca todas as jogadas daquela partida no banco
-                        List<JogadaDTO> jogadasBanco = partidaDAO.buscarJogadasPorPartida(idEscolhido);
-                        
-                        // Constrói os quadros (frames) do Replay
-                        List<TerminalUI.FrameReplay> frames = construirFramesDoReplay(jogadasBanco, config);
-                        
-                        // Manda dar o play na tela! (usando o delay configurado no properties)
-                        ui.reproduzirReplay(frames, config.getReplayDelayMs());
-                    }
-                    
-                } catch (SQLException e) {
-                    ui.exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
+                    // Aqui é onde o jogo inicia de fato, com DAOs para salvar no banco
+                    Jogo jogo = new Jogo(config, ui, partidaDAO, jogadaDAO);
+                    jogo.iniciarPartida();
+                } else if (opcao == 3) {
+                    // Replay de partidas anteriores
+                    exibirReplay(ui, config, partidaDAO);
                 }
-                
-                continue; // Volta para o início do Menu Principal
             }           
 
         } catch (IOException e) {
@@ -92,5 +66,85 @@ public class Main {
             // Garante que o Scanner será fechado ao encerrar o sistema
             ui.fecharScanner();
         }
+    }
+
+    /**
+     * Exibe o replay de uma partida anterior
+     */
+    private static void exibirReplay(TerminalUI ui, GameConfig config, PartidaDAO partidaDAO) {
+        try {
+            // 1. Busca a lista bruta do banco de dados
+            List<PartidaDTO> partidasBanco = partidaDAO.listarPartidas();
+            
+            if (partidasBanco.isEmpty()) {
+                ui.exibirMensagem("Nenhuma partida anterior encontrada no banco de dados.");
+                return;
+            }
+            
+            // 2. Converte os dados do Banco para os DTOs visuais do Membro 4
+            List<TerminalUI.ResumoPartida> historicoUI = new ArrayList<>();
+            for (PartidaDTO p : partidasBanco) {
+                historicoUI.add(new TerminalUI.ResumoPartida(p.getId(), p.getInicio(), p.getVencedor()));
+            }
+            
+            // 3. Chama a UI para imprimir a tabela e pegar a resposta do usuário
+            int idEscolhido = ui.exibirHistoricoPartidas(historicoUI);
+            
+            // 4. Se o usuário escolheu uma partida válida para assistir
+            if (idEscolhido > 0) {
+                try {
+                    // Busca todas as jogadas daquela partida no banco
+                    JogadaDAO jogadaDAO = new JogadaDAO(new ConexaoSQLite(config.getDbSqliteFile()));
+                    List<JogadaDTO> jogadasBanco = jogadaDAO.buscarJogadasPorPartida(idEscolhido);
+                    
+                    // Constrói os quadros (frames) do Replay
+                    List<TerminalUI.FrameReplay> frames = construirFramesDoReplay(jogadasBanco);
+                    
+                    // Manda dar o play na tela! (usando o delay configurado no properties)
+                    ui.reproduzirReplay(frames, config.getReplayDelayMs());
+                } catch (SQLException e) {
+                    ui.exibirMensagem("Erro ao buscar jogadas: " + e.getMessage());
+                }
+            }
+            
+        } catch (SQLException e) {
+            ui.exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Constrói os frames do replay a partir das jogadas armazenadas
+     */
+    private static List<TerminalUI.FrameReplay> construirFramesDoReplay(List<JogadaDTO> jogadas) {
+        List<TerminalUI.FrameReplay> frames = new ArrayList<>();
+        
+        // Tabuleirosiniciais vazios (8x8 como padrão, será ajustado conforme necessário)
+        char[][] tabuleiroJogador = new char[8][8];
+        char[][] tabuleiroTiros = new char[8][8];
+        
+        // Inicializa com água (~)
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                tabuleiroJogador[i][j] = '~';
+                tabuleiroTiros[i][j] = '~';
+            }
+        }
+        
+        for (JogadaDTO jogada : jogadas) {
+            String descricao = String.format("Turno %d: %s atirou em %s (%s)", 
+                jogada.getTurno(), 
+                jogada.getJogador(), 
+                jogada.getCoordenada(),
+                jogada.getResultado());
+            
+            TerminalUI.FrameReplay frame = new TerminalUI.FrameReplay(
+                tabuleiroJogador,
+                tabuleiroTiros,
+                descricao
+            );
+            frames.add(frame);
+        }
+        
+        return frames;
     }
 }
