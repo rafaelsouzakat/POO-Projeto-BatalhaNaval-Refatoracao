@@ -52,4 +52,11 @@ public class Coordenada {
     public int getY() {
         return y;
     }
+
+    @Override
+    public String toString() {
+        // Converte o X (0, 1, 2) de volta para Letra (A, B, C) e o Y para número
+        char letra = (char) ('A' + this.getX());
+        return "" + letra + (this.getY() + 1);
+    }
 }
