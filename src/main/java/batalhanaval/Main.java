@@ -36,6 +36,8 @@ public class Main {
 
             // 4. Instancia os DAOs para persistência
             ConexaoSQLite conexao = new ConexaoSQLite(config.getDbSqliteFile());
+            conexao.criarTabelasSeNaoExistir(); // Garante que as tabelas existam
+
             PartidaDAO partidaDAO = new PartidaDAO(conexao);
             JogadaDAO jogadaDAO = new JogadaDAO(conexao);
 
@@ -62,7 +64,12 @@ public class Main {
         } catch (IOException e) {
             // Captura caso o arquivo game.properties não seja encontrado
             ui.exibirMensagem("Erro fatal ao abrir o arquivo de configurações: " + e.getMessage());
-        } finally {
+        } 
+        catch (SQLException e) {
+            // Captura erros relacionados ao banco de dados
+            ui.exibirMensagem("Erro fatal ao acessar o banco de dados: " + e.getMessage());
+        } 
+        finally {
             // Garante que o Scanner será fechado ao encerrar o sistema
             ui.fecharScanner();
         }
@@ -98,7 +105,7 @@ public class Main {
                     List<JogadaDTO> jogadasBanco = jogadaDAO.buscarJogadasPorPartida(idEscolhido);
                     
                     // Constrói os quadros (frames) do Replay
-                    List<TerminalUI.FrameReplay> frames = construirFramesDoReplay(jogadasBanco);
+                    List<TerminalUI.FrameReplay> frames = construirFramesDoReplay(jogadasBanco, config);
                     
                     // Manda dar o play na tela! (usando o delay configurado no properties)
                     ui.reproduzirReplay(frames, config.getReplayDelayMs());
@@ -115,18 +122,19 @@ public class Main {
     /**
      * Constrói os frames do replay a partir das jogadas armazenadas
      */
-    private static List<TerminalUI.FrameReplay> construirFramesDoReplay(List<JogadaDTO> jogadas) {
+    private static List<TerminalUI.FrameReplay> construirFramesDoReplay(List<JogadaDTO> jogadas, GameConfig config) {
         List<TerminalUI.FrameReplay> frames = new ArrayList<>();
+        int boardSize = config.getBoardSize();
         
-        // Tabuleirosiniciais vazios (8x8 como padrão, será ajustado conforme necessário)
-        char[][] tabuleiroJogador = new char[8][8];
-        char[][] tabuleiroTiros = new char[8][8];
+        // Tabuleiros iniciais vazios com tamanho dinâmico
+        char[][] tabuleiroJogador = new char[boardSize][boardSize];
+        char[][] tabuleiroTiros = new char[boardSize][boardSize];
         
-        // Inicializa com água (~)
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                tabuleiroJogador[i][j] = '~';
-                tabuleiroTiros[i][j] = '~';
+        // Inicializa com . (desconhecido) para o replay
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                tabuleiroJogador[i][j] = '.';
+                tabuleiroTiros[i][j] = '.';
             }
         }
         
