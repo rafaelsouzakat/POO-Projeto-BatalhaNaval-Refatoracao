@@ -100,12 +100,16 @@ public class Tabuleiro{
             }
         }
 
-        // 3. Posicionamento: Se passou nos testes, grava o navio no grid
+        // 3. Cria um objeto Navio com um ID único baseado no naviosRestantes
+        Navio navio = new Navio(naviosRestantes, "Navio-" + naviosRestantes, tamanho);
+
+        // 4. Posicionamento: Se passou nos testes, grava o navio no grid e em naviosPosicionados
         for (int i = 0; i < tamanho; i++) {
             int placeX = direcao.equals("H") ? x + i : x;
             int placeY = direcao.equals("V") ? y + i : y;
 
             grid[placeY][placeX] = 'S'; // 'S' representa a parte do navio
+            naviosPosicionados[placeY][placeX] = navio; // Armazena referência ao objeto Navio
         }
 
         this.naviosRestantes++; // Incrementa o contador de navios restantes

@@ -124,6 +124,10 @@ public void iniciarPartida() {
                     ui.exibirMensagem("Coordenada inválida: " + e.getMessage());
                     continue; // Pede de novo sem passar o turno
                 }
+            } else {
+                // Opção inválida
+                ui.exibirMensagem("[ERRO] Opção inválida! Tente novamente.");
+                continue;
             }
         }
 
