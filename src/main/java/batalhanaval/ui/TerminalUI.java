@@ -48,36 +48,47 @@ public class TerminalUI {
     // RENDERIZAÇÃO DE TABULEIROS
     // Renderiza dois tabuleiros lado a lado com cabeçalhos alinhados.
     public void exibirTabuleirosLadoALado(char[][] meuTabuleiro, char[][] meusTiros) {
+        int boardSize = meuTabuleiro.length;
         System.out.println();
         System.out.printf("%-30s | %s%n", "SEU TABULEIRO", "SEUS TIROS NO INIMIGO");
-        System.out.println("    A B C D E F G H I J     |     A B C D E F G H I J");
 
-        for (int y = 0; y < 10; y++) {
-            // Usa %2d para garantir que o '10' fique alinhado com '1' a '9'
+        StringBuilder headerEsquerdo = new StringBuilder("    ");
+        StringBuilder headerDireito = new StringBuilder("    ");
+        for (int x = 0; x < boardSize; x++) {
+            headerEsquerdo.append((char) ('A' + x)).append(" ");
+            headerDireito.append((char) ('A' + x)).append(" ");
+        }
+        System.out.println(headerEsquerdo.toString() + "    |     " + headerDireito.toString());
+
+        for (int y = 0; y < boardSize; y++) {
             StringBuilder linhaEsquerda = new StringBuilder(String.format("%2d  ", (y + 1)));
             StringBuilder linhaDireita = new StringBuilder(String.format("%2d  ", (y + 1)));
 
-            // Constrói linha do próprio tabuleiro
-            for (int x = 0; x < 10; x++) {
+            for (int x = 0; x < boardSize; x++) {
                 linhaEsquerda.append(meuTabuleiro[y][x]).append(" ");
             }
 
-            // Constrói linha do tabuleiro de tiros
-            for (int x = 0; x < 10; x++) {
+            for (int x = 0; x < boardSize; x++) {
                 linhaDireita.append(meusTiros[y][x]).append(" ");
             }
 
-            // Imprime as duas linhas separadas pelo divisor
             System.out.println(linhaEsquerda.toString() + "  |  " + linhaDireita.toString());
         }
     }
 
     public void exibirMeuTabuleiro(char[][] meuTabuleiro) {
+        int boardSize = meuTabuleiro.length;
         System.out.println("\nSEU TABULEIRO");
-        System.out.println("    A B C D E F G H I J");
-        for (int y = 0; y < 10; y++) {
+
+        StringBuilder header = new StringBuilder("    ");
+        for (int x = 0; x < boardSize; x++) {
+            header.append((char) ('A' + x)).append(" ");
+        }
+        System.out.println(header.toString());
+
+        for (int y = 0; y < boardSize; y++) {
             StringBuilder linha = new StringBuilder(String.format("%2d  ", (y + 1)));
-            for (int x = 0; x < 10; x++) {
+            for (int x = 0; x < boardSize; x++) {
                 linha.append(meuTabuleiro[y][x]).append(" ");
             }
             System.out.println(linha.toString());

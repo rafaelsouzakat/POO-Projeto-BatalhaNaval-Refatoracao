@@ -4,6 +4,7 @@ package batalhanaval.dominio;
 public class Tabuleiro{
     // Atributos da classe Tabuleiro
     private char[][] grid;
+    private char[][] gridDeTiros;
     private Navio[][] naviosPosicionados;  // Guarda qual navio está em qual célula
     private int size;
     private int naviosRestantes; // Contador de navios que ainda não foram afundados
@@ -12,12 +13,14 @@ public class Tabuleiro{
     public Tabuleiro(int size){
         this.size = size;
         this.grid = new char[size][size];
+        this.gridDeTiros = new char[size][size];
         this.naviosPosicionados = new Navio[size][size];
 
-        // Inicializa o grid com água (representada por '.')
+        // Inicializa o grid com água (representada por '.') e o grid de tiros como desconhecido
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
                 this.grid[i][j] = '.';
+                this.gridDeTiros[i][j] = '.';
             }
         }
     }
@@ -126,13 +129,18 @@ public class Tabuleiro{
     }
 
     public char[][] getGridDeTiros(){
-        char[][] tiros = new char[size][size];
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                tiros[i][j] = (grid[i][j] == 'S') ? '.' : grid[i][j]; // Esconde os navios
-            }
+        return gridDeTiros;
+    }
+
+    public void marcarTiro(Coordenada c, ResultadoTiro resultado) {
+        int x = c.getX();
+        int y = c.getY();
+
+        if (resultado == ResultadoTiro.AGUA) {
+            gridDeTiros[y][x] = 'o';
+        } else if (resultado == ResultadoTiro.ACERTO || resultado == ResultadoTiro.AFUNDOU) {
+            gridDeTiros[y][x] = 'X';
         }
-        return tiros;
     }
 
     public int getNaviosRestantes(){

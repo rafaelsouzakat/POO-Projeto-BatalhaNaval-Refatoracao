@@ -138,6 +138,9 @@ public void iniciarPartida() {
         // Aplica o tiro no tabuleiro inimigo
         ResultadoTiro resultado = defensor.getTabuleiro().receberTiro(jogada);
 
+        // Marca o resultado no tabuleiro de tiros do atacante para exibir seu histórico de disparos
+        atacante.getTabuleiro().marcarTiro(jogada, resultado);
+
         // Exibe a mensagem do que aconteceu na tela
         ui.exibirMensagem("\n>>> " + atacante.getNome() + " atirou em " + jogada.toString());
         ui.exibirResultadoTiro(resultado.getDescricao());
