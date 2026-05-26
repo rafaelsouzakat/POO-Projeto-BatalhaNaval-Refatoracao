@@ -101,42 +101,73 @@ public void iniciarPartida() {
         
         Coordenada coordAlvo = null;
 
-        // ... (AQUI FICA O BLOCO DO TURNO DO HUMANO QUE JÁ FIZEMOS, ONDE ELE DIGITA O TIRO) ...
-        
-        // 2. O EXEMPLO GENÉRICO DE TIRO SUBSTITUÍDO PELO CÓDIGO REAL:
+        // --- 1. LÓGICA DO TURNO DO HUMANO (O que estava faltando!) ---
+        if (turnoDoHumano) {
+            ui.exibirTabuleirosLadoALado(atacante.getTabuleiro().getGrid(), atacante.getTabuleiro().getGridDeTiros());
+            
+            int opcao = ui.exibirMenuTurno(
+                atacante.getTabuleiro().getNaviosRestantes(), 
+                defensor.getTabuleiro().getNaviosRestantes()
+            );
+            
+            if (opcao == 2) {
+                ui.exibirLegenda();
+                continue; 
+            } else if (opcao == 3) {
+                ui.exibirMeuTabuleiro(atacante.getTabuleiro().getGrid());
+                continue; 
+            } else if (opcao == 1) {
+                try {
+                    String entrada = ui.lerCoordenada("Digite a coordenada para atirar");
+                    coordAlvo = Coordenada.parse(entrada, config.getBoardSize());
+                } catch (IllegalArgumentException e) {
+                    ui.exibirMensagem("Coordenada inválida: " + e.getMessage());
+                    continue; // Pede de novo sem passar o turno
+                }
+            }
+        }
+
+        // --- 2. PROCESSAMENTO DO TIRO ---
         // O atacante decide onde atirar (Humano usa a coordenada digitada, CPU sorteia a dela)
         Coordenada jogada = atacante.prepararJogada(coordAlvo);
         
-        // Aplica o tiro no tabuleiro inimigo e recebe se foi água, acerto ou afundou
+        // Aplica o tiro no tabuleiro inimigo
         ResultadoTiro resultado = defensor.getTabuleiro().receberTiro(jogada);
 
-        // Se foi a CPU que atirou, se a estratégia for HUNT e se ela acertou um navio:
-        if (atacante instanceof CpuPlayer && resultado.isAcerto()) {
-            ((CpuPlayer) atacante).registrarAcertoHUNT(jogada);
-        }       
-
-        // Exibe a mensagem do que aconteceu (água, acerto, afundou)
+        // Exibe a mensagem do que aconteceu na tela
         ui.exibirMensagem("\n>>> " + atacante.getNome() + " atirou em " + jogada.toString());
         ui.exibirResultadoTiro(resultado.getDescricao());
 
-        // 3. SALVANDO NO HISTÓRICO DO REPLAY:
+        // --- 3. INTEGRAÇÃO DA INTELIGÊNCIA DA CPU (HUNT) ---
+        // Se foi a CPU que atirou e ela acertou um navio, avisa a memória dela!
+        if (atacante instanceof CpuPlayer && resultado.isAcerto()) {
+            ((CpuPlayer) atacante).registrarAcertoHUNT(jogada);
+        }
+
+        // --- 4. SALVANDO NO HISTÓRICO DO REPLAY ---
         historicoJogadas.add(new JogadaDTO(turnoContador, atacante.getNome(), jogada.toString(), resultado.getDescricao()));
 
-        // VERIFICA SE ALGUÉM VENCEU
+        // --- 5. VERIFICA SE ALGUÉM VENCEU ---
         if (defensor.getTabuleiro().isFrotaTotalmenteAfundada()) {
             ui.exibirMensagem("\n🏆 FIM DE JOGO! A frota de " + defensor.getNome() + " foi destruída!");
             ui.exibirMensagem("🏆 VENCEDOR: " + atacante.getNome() + " 🏆");
             
+            // Salva tudo no banco de dados
             salvarDadosNoBanco(dataInicio, atacante.getNome());
             
             jogoAtivo = false;
             break;
         }
 
-        turnoContador++;
-        turnoDoHumano = !turnoDoHumano;
+        // --- 6. CONTROLE DE TROCA DE TURNO ---
+        if (resultado.isAcerto() && config.isHitGrantsExtraShot()) {
+            ui.exibirMensagem(atacante.getNome() + " acertou e ganhou um tiro extra!");
+        } else {
+            turnoDoHumano = !turnoDoHumano;
+        }
+        
+        turnoContador++;}
     }
-}
 
     // Método auxiliar privado para manter o iniciarPartida() limpo
     private void salvarDadosNoBanco(String dataInicio, String vencedor) {
