@@ -146,10 +146,14 @@ public class Main {
                 jogada.getCoordenada(),
                 jogada.getResultado());
             Coordenada coordenada = Coordenada.parse(jogada.getCoordenada(), boardSize);
-            if (jogada.getResultado().equalsIgnoreCase("Água") || jogada.getResultado().equalsIgnoreCase("AGUA")) {
-                tabuleiroTiros[coordenada.getY()][coordenada.getX()] = 'o';
+            char marcador = (jogada.getResultado().equalsIgnoreCase("Água") || jogada.getResultado().equalsIgnoreCase("AGUA")) ? 'o' : 'X';
+
+            // Se a jogada foi feita pela CPU, mostra no tabuleiro do jogador (lado esquerdo).
+            // Caso contrário, mostra no tabuleiro de tiros (lado direito).
+            if (jogada.getJogador() != null && jogada.getJogador().equalsIgnoreCase("CPU")) {
+                tabuleiroJogador[coordenada.getY()][coordenada.getX()] = marcador;
             } else {
-                tabuleiroTiros[coordenada.getY()][coordenada.getX()] = 'X';
+                tabuleiroTiros[coordenada.getY()][coordenada.getX()] = marcador;
             }
 
             frames.add(new TerminalUI.FrameReplay(
