@@ -6,6 +6,7 @@ public class Tabuleiro{
     private char[][] grid;
     private Navio[][] naviosPosicionados;  // Guarda qual navio está em qual célula
     private int size;
+    private int naviosRestantes; // Contador de navios que ainda não foram afundados
 
     // Construtor da classe Tabuleiro
     public Tabuleiro(int size){
@@ -107,9 +108,7 @@ public class Tabuleiro{
             grid[placeY][placeX] = 'S'; // 'S' representa a parte do navio
         }
 
-        // Caso você tenha um contador de navios vivos no tabuleiro, incremente-o aqui:
-        // this.naviosRestantes++;
-
+        this.naviosRestantes++; // Incrementa o contador de navios restantes
         return true;
     }
 
@@ -133,15 +132,7 @@ public class Tabuleiro{
     }
 
     public int getNaviosRestantes(){
-        int count = 0;
-        for(int i = 0; i < size; i++){
-            for(int j = 0; j < size; j++){
-                if(naviosPosicionados[i][j] != null && !naviosPosicionados[i][j].isAfundado()){
-                    count++;
-                }
-            }
-        }
-        return count;
+        return naviosRestantes;
     }
 
     public ResultadoTiro receberTiro(Coordenada c){
@@ -152,7 +143,14 @@ public class Tabuleiro{
             Navio navio = naviosPosicionados[y][x];
             navio.registrarAcerto();
             grid[y][x] = 'X'; // Marca o acerto no grid
-            return navio.isAfundado() ? ResultadoTiro.AFUNDOU : ResultadoTiro.ACERTO;
+
+            if(navio.isAfundado()){
+                naviosRestantes--; // Decrementa o contador de navios restantes
+                return ResultadoTiro.AFUNDOU;
+            }
+            else{
+                return ResultadoTiro.ACERTO;
+            }
         }
         else if(grid[y][x] == '.' || grid[y][x] == 'O'){
             grid[y][x] = 'O'; // Marca o erro no grid
