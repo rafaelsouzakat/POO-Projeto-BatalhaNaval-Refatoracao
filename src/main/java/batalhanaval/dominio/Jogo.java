@@ -110,6 +110,11 @@ public void iniciarPartida() {
         // Aplica o tiro no tabuleiro inimigo e recebe se foi água, acerto ou afundou
         ResultadoTiro resultado = defensor.getTabuleiro().receberTiro(jogada);
 
+        // Se foi a CPU que atirou, se a estratégia for HUNT e se ela acertou um navio:
+        if (atacante instanceof CpuPlayer && resultado.isAcerto()) {
+            ((CpuPlayer) atacante).registrarAcertoHUNT(jogada);
+        }       
+
         // Exibe a mensagem do que aconteceu (água, acerto, afundou)
         ui.exibirMensagem("\n>>> " + atacante.getNome() + " atirou em " + jogada.toString());
         ui.exibirResultadoTiro(resultado.getDescricao());
