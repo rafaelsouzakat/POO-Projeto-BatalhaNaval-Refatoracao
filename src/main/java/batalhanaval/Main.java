@@ -2,6 +2,7 @@ package batalhanaval;
 
 import batalhanaval.config.GameConfig;
 import batalhanaval.config.ValidadorDeFrota;
+import batalhanaval.dominio.Coordenada;
 import batalhanaval.ui.TerminalUI;
 import batalhanaval.dominio.Jogo;
 import batalhanaval.persistencia.PartidaDAO;
@@ -144,15 +145,29 @@ public class Main {
                 jogada.getJogador(), 
                 jogada.getCoordenada(),
                 jogada.getResultado());
-            
-            TerminalUI.FrameReplay frame = new TerminalUI.FrameReplay(
-                tabuleiroJogador,
-                tabuleiroTiros,
+            Coordenada coordenada = Coordenada.parse(jogada.getCoordenada(), boardSize);
+            if (jogada.getResultado().equalsIgnoreCase("Água") || jogada.getResultado().equalsIgnoreCase("AGUA")) {
+                tabuleiroTiros[coordenada.getY()][coordenada.getX()] = 'o';
+            } else {
+                tabuleiroTiros[coordenada.getY()][coordenada.getX()] = 'X';
+            }
+
+            frames.add(new TerminalUI.FrameReplay(
+                copiarMatriz(tabuleiroJogador),
+                copiarMatriz(tabuleiroTiros),
                 descricao
-            );
-            frames.add(frame);
+            ));
         }
         
         return frames;
+    }
+
+    private static char[][] copiarMatriz(char[][] original) {
+        int size = original.length;
+        char[][] copia = new char[size][size];
+        for (int i = 0; i < size; i++) {
+            System.arraycopy(original[i], 0, copia[i], 0, size);
+        }
+        return copia;
     }
 }

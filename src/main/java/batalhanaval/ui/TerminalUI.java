@@ -50,15 +50,16 @@ public class TerminalUI {
     public void exibirTabuleirosLadoALado(char[][] meuTabuleiro, char[][] meusTiros) {
         int boardSize = meuTabuleiro.length;
         System.out.println();
-        System.out.printf("%-30s | %s%n", "SEU TABULEIRO", "SEUS TIROS NO INIMIGO");
-
         StringBuilder headerEsquerdo = new StringBuilder("    ");
         StringBuilder headerDireito = new StringBuilder("    ");
         for (int x = 0; x < boardSize; x++) {
             headerEsquerdo.append((char) ('A' + x)).append(" ");
             headerDireito.append((char) ('A' + x)).append(" ");
         }
-        System.out.println(headerEsquerdo.toString() + "    |     " + headerDireito.toString());
+        String leftHeader = headerEsquerdo.toString();
+        String rightHeader = headerDireito.toString();
+        System.out.printf("%-" + leftHeader.length() + "s| %s%n", "SEU TABULEIRO", "SEUS TIROS NO INIMIGO");
+        System.out.println(leftHeader + "| " + rightHeader);
 
         for (int y = 0; y < boardSize; y++) {
             StringBuilder linhaEsquerda = new StringBuilder(String.format("%2d  ", (y + 1)));
@@ -72,7 +73,7 @@ public class TerminalUI {
                 linhaDireita.append(meusTiros[y][x]).append(" ");
             }
 
-            System.out.println(linhaEsquerda.toString() + "  |  " + linhaDireita.toString());
+            System.out.println(linhaEsquerda.toString() + "| " + linhaDireita.toString());
         }
     }
 
