@@ -17,7 +17,7 @@ import java.util.*;
  * - Tiro: agua, acerto, afundou.
  * - Vence quem afundar todos os navios do adversario.
  */
-public class Main {
+public class MainOriginal {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
