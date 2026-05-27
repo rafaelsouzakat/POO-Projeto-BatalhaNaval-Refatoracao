@@ -2,13 +2,36 @@
 
 Projeto da disciplina de Programação Orientada a Objetos: jogo Batalha Naval em Java com persistência SQLite.
 
+## Objetivo deste README
+
+Este arquivo explica como preparar, compilar, executar e testar o projeto de forma reproduzível, para entrega à disciplina.
+
 ## Requisitos
 
-- Java 17
-- Maven
-- Conexão de internet apenas para baixar dependências na primeira execução
+- Java 17 (JDK)
+- Maven 3.6+ (ou compatível)
+- Espaço em disco para criar o arquivo SQLite (diretório `data/`)
 
-## Como compilar
+O projeto não depende de serviços externos; a dependência do SQLite é fornecida pelo driver JDBC (`org.xerial:sqlite-jdbc`).
+
+## Preparação (reproduzibilidade)
+
+1. Abra um terminal e posicione-se na raiz do repositório.
+2. Garanta que o diretório `data/` exista (o projeto usa `data/batalha_naval.db` por padrão):
+
+```bash
+mkdir -p data
+```
+
+3. Confirme a versão do Java:
+
+```bash
+java -version
+```
+
+Use JDK 17 para executar e testar o projeto.
+
+## Compilar
 
 No diretório do projeto, execute:
 
@@ -16,72 +39,57 @@ No diretório do projeto, execute:
 mvn clean package
 ```
 
-## Como executar
+Isso irá baixar dependências e gerar o JAR em `target/`.
 
-Existem duas formas principais:
+## Executar
 
-1. Usando Maven:
-
-```bash
-mvn spring-boot:run -Dspring-boot.run.main-class=batalhanaval.Main
-```
-
-2. Usando o JAR gerado (após `mvn clean package`):
+Após `mvn clean package`, execute o JAR gerado:
 
 ```bash
 java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
 
-> Importante: execute o jogo a partir da raiz do projeto, pois o banco SQLite usa o caminho relativo `data/batalha_naval.db` definido em `src/main/resources/game.properties`.
+Execute os comandos a partir da raiz do projeto para garantir que o caminho relativo para o banco (`data/batalha_naval.db`) seja resolvido corretamente.
 
-## Como testar
+## Testes
 
-Execute os testes do projeto com:
+Execute a suíte de testes com:
 
 ```bash
 mvn test
 ```
 
-## Dependências
+Para execução reprodutível em integração contínua, use exatamente as mesmas versões do JDK e do Maven informadas acima.
 
-O projeto usa estas dependências principais:
+## Dependências principais
 
 - `org.springframework.boot:spring-boot-starter`
-- `org.xerial:sqlite-jdbc` (driver SQLite)
-- `org.springframework.boot:spring-boot-starter-test` para testes
+- `org.xerial:sqlite-jdbc`
+- `org.springframework.boot:spring-boot-starter-test` (testes)
 
-## Como funciona a persistência
+As dependências completas estão definidas no `pom.xml`.
 
-O arquivo de configurações `src/main/resources/game.properties` define:
+## Configuração do banco (opcional)
+
+O arquivo `src/main/resources/game.properties` define o arquivo SQLite usado pelo projeto:
 
 - `db.enabled=true`
 - `db.type=sqlite`
 - `db.sqlite.file=data/batalha_naval.db`
 
-Ao iniciar o jogo, o sistema cria as tabelas SQLite automaticamente e salva a partida somente quando o jogo termina com um vencedor.
+Se preferir um local fixo para o banco, altere `db.sqlite.file` para um caminho absoluto nesse arquivo.
 
-## Possível causa do problema de salvamento no banco
+## Execução em CI (exemplo)
 
-Se o jogo estiver funcionando para você, mas não para os colegas, as prováveis causas são:
+Comandos mínimos para integrar em um pipeline (por exemplo, GitHub Actions):
 
-- o projeto não está sendo executado com o diretório de trabalho correto;
-- o arquivo de banco usado é relativo a `data/batalha_naval.db`, então cada pessoa pode estar criando o arquivo em um local diferente;
-- o diretório `data/` não existe no local em que o jogo está sendo executado;
-- a partida não terminou completamente; o código só salva o jogo quando uma partida chega ao fim e o vencedor é definido.
-
-### O que verificar
-
-- executar o comando a partir da raiz do projeto;
-- confirmar que `data/batalha_naval.db` foi criado na raiz do projeto;
-- confirmar que `db.enabled=true` está ativo no `game.properties` em uso;
-- verificar se o jogo chegou ao fim (após o fim a mensagem de sucesso aparece).
-
-## Observação
-
-Se quiser garantir um caminho fixo, você pode alterar `db.sqlite.file` para um caminho absoluto no `game.properties`, por exemplo:
-
-```properties
-db.sqlite.file=/caminho/completo/para/data/batalha_naval.db
+```bash
+mkdir -p data
+mvn --batch-mode -DskipTests=false clean package
+mvn test
 ```
 
-Isso evita diferenças entre máquinas e diretórios de trabalho.
+## Observações finais
+
+Execute sempre a partir da raiz do projeto e use JDK 17 para garantir resultados reproduzíveis ao compilar e testar.
+
