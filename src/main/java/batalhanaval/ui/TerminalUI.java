@@ -1,7 +1,6 @@
 package batalhanaval.ui;
 
 import java.util.Scanner;
-import java.util.InputMismatchException;
 
 /*
  * Classe responsável por toda a interação de terminal com o usuário.

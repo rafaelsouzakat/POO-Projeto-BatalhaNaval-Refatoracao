@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Jogo {
     private GameConfig config;
@@ -51,6 +50,7 @@ public class Jogo {
 
 public void iniciarPartida() {
     ui.exibirMensagem("\n[SISTEMA] Posicionando frotas...");
+    ui.exibirMensagem("[SISTEMA] Estratégia da CPU: " + config.getCpuStrategy());
     
     // 1. LÓGICA DE POSICIONAMENTO
     int[] tamanhosNavios = config.getFleetSizes();
