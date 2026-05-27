@@ -50,13 +50,13 @@ public class Main {
                 if (opcao == 0) {
                     ui.exibirMensagem("Encerrando Batalha Naval. Até logo!");
                     continuarNoMenu = false;
-                } else if (opcao == 1 || opcao == 2) {
+                } else if (opcao == 1) {
                     ui.exibirMensagem("\nIniciando o motor do jogo...");
                     
                     // Aqui é onde o jogo inicia de fato, com DAOs para salvar no banco
                     Jogo jogo = new Jogo(config, ui, partidaDAO, jogadaDAO);
                     jogo.iniciarPartida();
-                } else if (opcao == 3) {
+                } else if (opcao == 2) {
                     // Replay de partidas anteriores
                     exibirReplay(ui, config, partidaDAO);
                 }
