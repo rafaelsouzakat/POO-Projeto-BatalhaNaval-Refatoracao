@@ -17,7 +17,7 @@ public class TerminalUI {
 
     public int exibirMenuPrincipal() {
         System.out.println("\n=== BATALHA NAVAL ===");
-        System.out.println("1. Nova Partida (Posicionamento Manual)");
+        System.out.println("1. Nova Partida");
         System.out.println("2. Histórico de Partidas / Replay");
         System.out.println("0. Sair");
         System.out.print("Escolha uma opção: ");
