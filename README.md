@@ -2,6 +2,13 @@
 
 Projeto da disciplina de Programação Orientada a Objetos: jogo Batalha Naval em Java com persistência SQLite.
 
+Integrantes do grupo:
+- Rafael Souza Katahira - 10737786
+- Pedro Bender - 10743385
+- Kauê Stang - 10438583
+- Leonardo Fernandes Barreto - 10735590
+- Jonny Kuanyu Wang - 10438969
+
 ## Objetivo deste README
 
 Este arquivo explica como preparar, compilar, executar e testar o projeto de forma reproduzível, para entrega à disciplina.
