@@ -95,7 +95,7 @@ public class GameConfig {
     }
 
     public String getCpuStrategy() {
-        return props.getProperty("cpu.strategy", "HUNT").trim().toUpperCase();
+        return props.getProperty("cpu.strategy", "RANDOM").trim().toUpperCase();
     }
 
     public boolean isCpuUseParityPreference() {
