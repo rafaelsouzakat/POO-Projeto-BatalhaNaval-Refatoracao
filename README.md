@@ -43,10 +43,18 @@ Isso irá baixar dependências e gerar o JAR em `target/`.
 
 ## Executar
 
-Após `mvn clean package`, execute o JAR gerado:
+Existem duas formas de executar o projeto a partir da raiz do repositório:
+
+- Usando o JAR gerado (após `mvn clean package`):
 
 ```bash
 java -jar target/demo-0.0.1-SNAPSHOT.jar
+```
+
+- Usando o plugin Spring Boot via Maven (útil durante desenvolvimento):
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.main-class=batalhanaval.Main
 ```
 
 Execute os comandos a partir da raiz do projeto para garantir que o caminho relativo para o banco (`data/batalha_naval.db`) seja resolvido corretamente.
